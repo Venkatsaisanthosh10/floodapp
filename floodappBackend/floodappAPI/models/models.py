@@ -1,4 +1,7 @@
-from mongoengine import Document, StringField, FloatField, DateTimeField, DictField
+from mongoengine import Document, StringField, FloatField, DateTimeField, DictField,EmbeddedDocument, EmbeddedDocumentField
+class Location(EmbeddedDocument):
+    latitude = FloatField(required=True)
+    longitude = FloatField(required=True)
 
 class FloodData(Document):
     FACILITY_TYPES = [
@@ -9,12 +12,9 @@ class FloodData(Document):
 
     type = StringField(max_length=50, choices=FACILITY_TYPES, default='other')
     name = StringField(max_length=255, required=True)
-    location = StringField(max_length=255, required=True)
-    water_level = FloatField(required=True)
-    risk_level = StringField(max_length=50, required=True)
+    location = EmbeddedDocumentField(Location, required=True)
     timestamp = DateTimeField(auto_now_add=True)
-    description = StringField(required=False)
-    coordinates = DictField(required=True)
+
 
     meta = {
         'collection': 'Locations',
@@ -33,12 +33,12 @@ class PublicAlert(Document):
     alertMessage = StringField(max_length=255,required= True)
     instructions = StringField(max_length=255,required= True)
     coordinates = DictField(required=True)
+    timestamp = DateTimeField(auto_now_add=True)
 
-
-    # meta = {
-    #     'collection': 'Locations',
-    #     'indexes': ['timestamp']
-    # }
+    meta = {
+        'collection': 'PublicAlert',
+        'indexes': ['timestamp']
+    }
 
     def __str__(self):
         return f"{self.type} - {self.name} at {self.location} ({self.timestamp})"
@@ -47,5 +47,15 @@ class PublicAlert(Document):
 
 
 class Messages(Document):
-    Message = StringField(max_length=255,required = True)
+    UserMessage = StringField(max_length=255,required = True)
     UserSend = StringField(max_length = 255,required = True)
+    timestamp = DateTimeField(auto_now_add=True)
+
+
+    meta = {
+        'collection': 'Messages',
+        'indexes': ['timestamp']
+    }
+
+    def __str__(self):
+        return f"{self.type} - {self.name} at {self.location} ({self.timestamp})"

@@ -6,5 +6,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('alerts/',views.get_flood_alerts, name='get_flood_alerts'),
     path('flooddata/', views.get_flood_data_alerts, name='get_flood_data_alerts'),
-    path('publicalert/', views.post_public_alert, name='post_public_alert'),
+    path('publicalert', views.post_public_alert, name='post_public_alert'),
+    path('postmessages', views.post_message, name='post_message'),
+    path('getmessages', views.get_messgaes, name='get_messages'),
 ]
