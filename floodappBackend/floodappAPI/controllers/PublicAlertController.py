@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models.models import PublicAlert
 from django.views.decorators.csrf import csrf_exempt
-
 class PublicAlertController:
     @staticmethod
     @csrf_exempt
@@ -13,15 +12,26 @@ class PublicAlertController:
             data = request.data
             
             # Extract required fields from request data
-            alert_title = data.get('alertTitle')
-            alert_message = data.get('alertMessage')
+            alert_title = data.get('title')
+            alert_message = data.get('message')
             instructions = data.get('instructions')
-            coordinates = data.get('coordinates')
+            location = data.get('location')
 
             # Validate required fields
-            if not all([alert_title, alert_message, instructions, coordinates]):
+            if not all([alert_title, alert_message, instructions, location]):
                 return Response({
-                    'error': 'All fields (alertTitle, alertMessage, instructions, coordinates) are required.'
+                    'error': 'All fields (title, message, instructions, location) are required.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Convert location array to required coordinate format
+            if isinstance(location, list) and len(location) == 2:
+                coordinates = {
+                    'lat': location[0],
+                    'lng': location[1]
+                }
+            else:
+                return Response({
+                    'error': 'Location must be an array with [latitude, longitude]'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             # Create and save the public alert
@@ -36,7 +46,6 @@ class PublicAlertController:
             return Response({
                 'status': 'Success',
                 'message': 'Alert created successfully',
-                'alert_id': str(public_alert.id),
                 'data': {
                     'alertTitle': alert_title,
                     'alertMessage': alert_message,

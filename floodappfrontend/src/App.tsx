@@ -1,5 +1,7 @@
 import { Routes, Route} from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import type { RootState } from './store/store'; // Adjust the path if your store file is elsewhere
 import { queryClient } from './config/queryClient';
 import './App.css';
 import Header from './components/header';
@@ -15,7 +17,12 @@ import EvacuationManager from './components/EvacuationManager';
 import ResourceStatusUpdates from './components/ResourceStatusUpdates';
 
 function App() {
+  const userRole = useSelector((state: RootState) => state.userRole.role);
   
+  // Helper function to check if user can view ResponseActions
+  const canViewResponseActions = () => {
+    return userRole === 'COMMAND CENTER' || userRole === 'SENIOR OFFICIAL';
+  };
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
@@ -25,10 +32,10 @@ function App() {
           <>
             <Header />
             <AlertBanner />
-            <div className="dashboard">
+            <div className={`dashboard ${canViewResponseActions() ? 'with-response-actions' : 'without-response-actions'}`}>
               <RiskAssessmentPanel />
               <GISMapPanel />
-              <ResponseActionsPanel />
+               {canViewResponseActions() && <ResponseActionsPanel />}
             </div>
             <ResourceManagementPanel />
             <CommunicationPanel />

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import { setRole } from '../store/userRoleSlice';
 import { useDispatch } from 'react-redux';
+import { setOfficialId } from '../store/UserOfficalID';
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [officalId, setOfficialId] = useState('');
+  const [officialIdInput, setOfficialIdInput] = useState('');
   const [isOfficial, setIsOfficial] = useState(false);
   const [errors, setErrors] = useState({
   username: '',
@@ -50,7 +51,7 @@ const Login: React.FC = () => {
       hasError = true;
     }
 
-    if (isOfficial && !officalId) {
+    if (isOfficial && !officialIdInput) {
       newErrors.officialId = 'Official ID is required';
       hasError = true;
     }
@@ -60,9 +61,10 @@ const Login: React.FC = () => {
     if (hasError) return;
 
     // Set the role based on Official ID
-    const userRole = determineRole(officalId);
+    const userRole = determineRole(officialIdInput);
     dispatch(setRole(userRole));
     
+    dispatch(setOfficialId(officialIdInput));
     // Navigate on success
     navigate('/main');
   };
@@ -89,8 +91,8 @@ const Login: React.FC = () => {
             <input
             type="text"
             placeholder="Enter Official ID"
-            value={officalId}
-            onChange={e => setOfficialId(e.target.value)}
+            value={officialIdInput}
+            onChange={e => setOfficialIdInput(e.target.value)}
           />
           {errors.officialId && <span className="error">{errors.officialId}</span>}
           </>

@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import '../styles/CommunicationPanel.css';
 import { useSelector } from 'react-redux';
 import { ChatService, type ChatMessage } from '../Services/chat.service';
+
 interface UpdateMessage {
-  sender: string;
-  message: string;
-  time: string;
+  UserSend: string;
+  UserMessage: string;
 }
 
 function getCurrentTime(): string {
-  return 'Just now';
+  return new Date().toLocaleTimeString();
 }
 
 function CommunicationPanel() {
@@ -18,26 +18,35 @@ function CommunicationPanel() {
     userRole: {
       role: string;
     };
-    // add other state slices if needed
+    officialId: {
+      officialId: string;
+    };
   }
   const currentUserRole = useSelector((state: RootState) => state.userRole.role);
-  const [updates, setUpdates] = useState<UpdateMessage[]>([
-    {
-      sender: 'Command Center',
-      message: 'All teams in position. Evacuation routes cleared.',
-      time: '2 minutes ago',
-    },
-    {
-      sender: 'Field Team Alpha',
-      message: 'Water level rising rapidly in Sector 7. Immediate evacuation recommended.',
-      time: '5 minutes ago',
-    },
-    {
-      sender: 'Weather Service',
-      message: 'Rainfall intensity increased to 180mm/day. Updated forecast available.',
-      time: '8 minutes ago',
-    },
-  ]);
+  const officialId = useSelector((state: RootState) => state.officialId.officialId);
+  const [updates, setUpdates] = useState<UpdateMessage[]>([]);
+
+  useEffect(() => {
+    // Fetch messages when component mounts
+    fetchMessages();
+
+    // Set up polling every 30 seconds
+    const interval = setInterval(fetchMessages, 30000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchMessages = async () => {
+    try {
+      const messages = await ChatService.fetchMessages();
+      console.log('Fetched messages:', messages);
+      setUpdates(messages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      showNotification('Failed to load messages', 'warning');
+    }
+  };
 
   function showNotification(message: string, type: 'success' | 'warning' | 'info') {
     const notification = document.createElement('div');
@@ -62,59 +71,56 @@ function CommunicationPanel() {
     }, 3000);
   }
 
-  // function handleSendMessage() {
-  //   const message = messageInputRef.current?.value.trim();
-  //   if (message) {
-  //     console.log('Sending message:', message);
-  //     const sender = currentUserRole || 'Current User';
-  //     setUpdates(prev => [
-  //       { sender, message, time: getCurrentTime() },
-  //       ...prev.slice(0, 9),
-  //     ]);
-  //     if (messageInputRef.current) messageInputRef.current.value = '';
-  //     showNotification('Message sent', 'success');
-  //   }
-  // }
-  function handleSendMessage() {
+  async function handleSendMessage() {
     const message = messageInputRef.current?.value.trim();
     if (message) {
-      const sender = currentUserRole || 'Current User';
+      const UserSend = officialId || 'Current User';
+      const UserMessage = message;
       const newMessage: ChatMessage = {
-        sender,
-        message,
-        time: getCurrentTime(),
+        UserSend,
+        UserMessage
       };
-  
-      ChatService.sendMessage(newMessage)
-        .then((savedMessage: UpdateMessage) => {
-          setUpdates(prev => [savedMessage, ...prev.slice(0, 9)]);
-          showNotification('Message sent to backend', 'success');
-        })
-        .catch((error: string) => {
-          console.error('Error sending message:', error);
-          
-        });
-  
-      if (messageInputRef.current) messageInputRef.current.value = '';
+
+      try {
+        await ChatService.sendMessage(newMessage);
+        // Fetch latest messages after sending
+        await fetchMessages();
+        if (messageInputRef.current) messageInputRef.current.value = '';
+        showNotification('Message sent successfully', 'success');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        showNotification('Failed to send message', 'warning');
+      }
     }
   }
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="panel communication-panel">
       <h3><i className="fas fa-comments"></i>Inter-Agency Communication</h3>
-      {currentUserRole!= 'PUBLIC' &&<>
-      <textarea
-        className="message-input"
-        placeholder="Type urgent communication message..."
-        rows={3}
-        ref={messageInputRef}
-      ></textarea>
-      <button
-        className="action-btn btn-primary"
-        onClick={handleSendMessage}
-      >
-        <i className="fas fa-paper-plane"></i>Send Message
-      </button>
-      </> }
+      {currentUserRole !== 'PUBLIC' && (
+        <>
+          <textarea
+            className="message-input"
+            placeholder="Type urgent communication message..."
+            rows={3}
+            ref={messageInputRef}
+            onKeyPress={handleKeyPress}
+          ></textarea>
+          <button
+            className="action-btn btn-primary"
+            onClick={handleSendMessage}
+          >
+            <i className="fas fa-paper-plane"></i>Send Message
+          </button>
+        </>
+      )}
       <div style={{ marginTop: '20px' }}>
         <h4 style={{ color: '#2c3e50', marginBottom: '10px' }}>Recent Updates</h4>
         <div
@@ -127,19 +133,25 @@ function CommunicationPanel() {
             borderRadius: '8px',
           }}
         >
-          {updates.map((update, idx) => (
-            <div
-              key={idx}
-              style={{
-                marginBottom: '10px',
-                paddingBottom: '10px',
-                borderBottom: idx < updates.length - 1 ? '1px solid #ddd' : undefined,
-              }}
-            >
-              <strong>{update.sender}:</strong> {update.message}
-              <div style={{ fontSize: '0.8em', color: '#666' }}>{update.time}</div>
+          {updates.length > 0 ? (
+            updates.map((update, idx) => (
+              <div
+                key={idx}
+                style={{
+                  marginBottom: '10px',
+                  paddingBottom: '10px',
+                  borderBottom: idx < updates.length - 1 ? '1px solid #ddd' : undefined,
+                }}
+              >
+                <strong>{update.UserSend}:</strong> {update.UserMessage}
+                <div style={{ fontSize: '0.8em', color: '#666' }}>{getCurrentTime()}</div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', color: '#666' }}>
+              No messages yet
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

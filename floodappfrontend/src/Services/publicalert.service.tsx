@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api'; // adjust this to your API endpoint
+const API_BASE_URL = 'http://127.0.0.1:5173/api';
 
 export const PublicAlertService = {
     createAlert: async (alertData: string) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/alerts`, alertData, {
+            const response = await axios.post(`${API_BASE_URL}/publicalert`, alertData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
