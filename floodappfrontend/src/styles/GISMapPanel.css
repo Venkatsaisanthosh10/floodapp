@@ -1,0 +1,38 @@
+/* Styles for the GISMapPanel component */
+.map-container {
+    height: 600px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.legend {
+    position: absolute;
+    bottom: 1px;
+    left: 85px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    column-gap: 30px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}

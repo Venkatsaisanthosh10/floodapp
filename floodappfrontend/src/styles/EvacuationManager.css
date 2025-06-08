@@ -1,0 +1,167 @@
+.evacuation-manager {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.evacuation-manager h1 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.evacuation-container {
+  display: flex;
+  gap: 20px;
+  min-height: 600px;
+}
+
+.zones-section,
+.resources-section {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.zones-list,
+.resources-list {
+  display: grid;
+  gap: 15px;
+  margin-top: 15px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.zone-card,
+.resource-card {
+  background: white;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.zone-card:hover,
+.resource-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.zone-card.selected,
+.resource-card.selected {
+  border: 2px solid #007bff;
+  background: #f8f9ff;
+}
+
+.zone-card h3,
+.resource-card h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.risk-level {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.risk-level.high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.risk-level.medium {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.risk-level.low {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.assigned-resources {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.assigned-resources h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.assigned-resource {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.unassign-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.unassign-btn:hover {
+  background: #c82333;
+}
+
+.assign-button {
+  width: 100%;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.assign-button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.assign-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Scrollbar Styling */
+.zones-list::-webkit-scrollbar,
+.resources-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.zones-list::-webkit-scrollbar-track,
+.resources-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.zones-list::-webkit-scrollbar-thumb,
+.resources-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.zones-list::-webkit-scrollbar-thumb:hover,
+.resources-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

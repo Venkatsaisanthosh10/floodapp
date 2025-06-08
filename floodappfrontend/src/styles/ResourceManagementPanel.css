@@ -1,0 +1,25 @@
+/* Styles for the ResourceManagementPanel component */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.resource-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.resource-card:hover {
+    transform: scale(1.05);
+}
+
+.resource-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #667eea;
+}
