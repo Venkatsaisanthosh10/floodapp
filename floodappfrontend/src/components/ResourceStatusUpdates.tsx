@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/ResourceStatusUpdates.css';
-
-interface StatusUpdate {
-  id: string;
-  zone: string;
-  resourceType: string;
-  status: string;
-  timestamp: string;
-  message: string;
-}
+import { ResourceStatusService , type StatusUpdate } from '../Services/ResourceStatus.service';
+// interface StatusUpdate {
+//   id: string;
+//   zone: string;
+//   resourceType: string;
+//   status: string;
+//   timestamp: string;
+//   message: string;
+// }
 
 const ResourceStatusUpdates: React.FC = () => {  const navigate = useNavigate();
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
@@ -21,27 +21,34 @@ const ResourceStatusUpdates: React.FC = () => {  const navigate = useNavigate();
   });
 
   // Simulated initial data
+  // useEffect(() => {
+  //   const initialUpdates: StatusUpdate[] = [
+  //     {
+  //       id: '1',
+  //       zone: 'Zone A',
+  //       resourceType: 'Emergency Vehicles',
+  //       status: 'Active',
+  //       timestamp: '2025-06-07 09:00',
+  //       message: 'All emergency vehicles deployed and operational'
+  //     },
+  //     {
+  //       id: '2',
+  //       zone: 'Zone B',
+  //       resourceType: 'Medical Supplies',
+  //       status: 'Limited',
+  //       timestamp: '2025-06-07 08:30',
+  //       message: 'Medical supplies running low, replenishment needed'
+  //     }
+  //   ];
+  //   setStatusUpdates(initialUpdates);
+  // }, []);
   useEffect(() => {
-    const initialUpdates: StatusUpdate[] = [
-      {
-        id: '1',
-        zone: 'Zone A',
-        resourceType: 'Emergency Vehicles',
-        status: 'Active',
-        timestamp: '2025-06-07 09:00',
-        message: 'All emergency vehicles deployed and operational'
-      },
-      {
-        id: '2',
-        zone: 'Zone B',
-        resourceType: 'Medical Supplies',
-        status: 'Limited',
-        timestamp: '2025-06-07 08:30',
-        message: 'Medical supplies running low, replenishment needed'
-      }
-    ];
-    setStatusUpdates(initialUpdates);
+    ResourceStatusService.getAllStatusUpdates()
+      .then((data: StatusUpdate[]) => setStatusUpdates(data))
+
+      .catch(() => showNotification('Failed to fetch updates', 'warning'));
   }, []);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -50,28 +57,60 @@ const ResourceStatusUpdates: React.FC = () => {  const navigate = useNavigate();
       [name]: value
     }));
   };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   const newStatusUpdate: StatusUpdate = {
+  //     id: Date.now().toString(),
+  //     ...newUpdate,
+  //     timestamp: new Date().toLocaleString('en-US', {
+  //       year: 'numeric',
+  //       month: '2-digit',
+  //       day: '2-digit',
+  //       hour: '2-digit',
+  //       minute: '2-digit'
+  //     })
+  //   };
+
+  //   setStatusUpdates(prev => [newStatusUpdate, ...prev]);
+    
+  //   // Add the update to the updates feed
+  //   const message = `${newUpdate.resourceType} in ${newUpdate.zone} - Status: ${newUpdate.status}`;
+  //   addUpdateMessage('Resource Status', `${message}. ${newUpdate.message}`);
+  //   showNotification('Status updated successfully', 'success');
+
+  //   // Reset form
+  //   setNewUpdate({
+  //     zone: '',
+  //     resourceType: '',
+  //     status: '',
+  //     message: ''
+  //   });
+  // };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+  
     const newStatusUpdate: StatusUpdate = {
-      id: Date.now().toString(),
       ...newUpdate,
       timestamp: new Date().toLocaleString('en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
-      })
+        minute: '2-digit',
+      }),
     };
-
-    setStatusUpdates(prev => [newStatusUpdate, ...prev]);
-    
-    // Add the update to the updates feed
-    const message = `${newUpdate.resourceType} in ${newUpdate.zone} - Status: ${newUpdate.status}`;
-    addUpdateMessage('Resource Status', `${message}. ${newUpdate.message}`);
-    showNotification('Status updated successfully', 'success');
-
-    // Reset form
+  
+    ResourceStatusService.createStatusUpdate(newStatusUpdate)
+      .then((savedUpdate) => {
+        setStatusUpdates(prev => [savedUpdate, ...prev]);
+        const message = `${newUpdate.resourceType} in ${newUpdate.zone} - Status: ${newUpdate.status}`;
+        addUpdateMessage('Resource Status', `${message}. ${newUpdate.message}`);
+        showNotification('Status updated successfully', 'success');
+      })
+      .catch(() => {
+        showNotification('Failed to send update', 'warning');
+      });
+  
     setNewUpdate({
       zone: '',
       resourceType: '',
@@ -79,7 +118,7 @@ const ResourceStatusUpdates: React.FC = () => {  const navigate = useNavigate();
       message: ''
     });
   };
-
+  
   const addUpdateMessage = (sender: string, message: string) => {
     const updatesFeed = document.getElementById('updates-feed');
     if (!updatesFeed) return;
