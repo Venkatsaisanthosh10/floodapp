@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import '../styles/CommunicationPanel.css';
 import { useSelector } from 'react-redux';
-
+import { ChatService, type ChatMessage } from '../Services/chat.service';
 interface UpdateMessage {
   sender: string;
   message: string;
@@ -62,19 +62,42 @@ function CommunicationPanel() {
     }, 3000);
   }
 
+  // function handleSendMessage() {
+  //   const message = messageInputRef.current?.value.trim();
+  //   if (message) {
+  //     console.log('Sending message:', message);
+  //     const sender = currentUserRole || 'Current User';
+  //     setUpdates(prev => [
+  //       { sender, message, time: getCurrentTime() },
+  //       ...prev.slice(0, 9),
+  //     ]);
+  //     if (messageInputRef.current) messageInputRef.current.value = '';
+  //     showNotification('Message sent', 'success');
+  //   }
+  // }
   function handleSendMessage() {
     const message = messageInputRef.current?.value.trim();
     if (message) {
       const sender = currentUserRole || 'Current User';
-      setUpdates(prev => [
-        { sender, message, time: getCurrentTime() },
-        ...prev.slice(0, 9),
-      ]);
+      const newMessage: ChatMessage = {
+        sender,
+        message,
+        time: getCurrentTime(),
+      };
+  
+      ChatService.sendMessage(newMessage)
+        .then((savedMessage: UpdateMessage) => {
+          setUpdates(prev => [savedMessage, ...prev.slice(0, 9)]);
+          showNotification('Message sent to backend', 'success');
+        })
+        .catch((error: string) => {
+          console.error('Error sending message:', error);
+          
+        });
+  
       if (messageInputRef.current) messageInputRef.current.value = '';
-      showNotification('Message sent', 'success');
     }
   }
-
   return (
     <div className="panel communication-panel">
       <h3><i className="fas fa-comments"></i>Inter-Agency Communication</h3>
