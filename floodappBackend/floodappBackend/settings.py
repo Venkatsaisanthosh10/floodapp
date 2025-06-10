@@ -93,19 +93,19 @@ MONGODB_DATABASES = {
 }
 
 # Configuration for djongo
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'Floodapp',
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': MONGODB_HOST,
-            'username': 'Rishi',
-            'password': 'Aishunani',
-            'authSource': 'admin',
-        }
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'Floodapp',
+#         'ENFORCE_SCHEMA': False,
+#         'CLIENT': {
+#             'host': MONGODB_HOST,
+#             'username': 'Rishi',
+#             'password': 'Aishunani',
+#             'authSource': 'admin',
+#         }
+#     }
+# }
 
 # Initialize MongoDB connection
 mongoengine.connect(
